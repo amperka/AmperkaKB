@@ -16,8 +16,12 @@ void setup()
 
 void loop()
 {
-  // если нажимается кнопка
-  if (KB.check(KEY_DOWN)) {
+  // определяем отжатие кнопки
+  // KB.onRelease()
+  // определяем зажатие кнопки
+  // KB.isPressed()
+  // опеределяем нажатие кнопки
+  if (KB.onPress()) {
     // печатаем номер кнопки и её символ в последовательный порт
     Serial.print("Key is press ");
     Serial.print(KB.getNum);
