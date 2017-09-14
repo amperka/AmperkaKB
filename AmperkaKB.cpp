@@ -78,11 +78,13 @@ bool AmperkaKB::onPress() {
     //определяем номер кнопки нажатой в данный момент времени
     _findPressKeyNow();
     // определяем и выводим ответ
-    result = _numberKeyNow != 255 && _numberKeyNow != _numberKeyWas ? true : false;
+    result = _numberKeyNow != 255 && _numberKeyNow != _numberKeyWas;
     getNum =  _massNumberKey[_massItem][_numberKeyNow];
     getChar = _massCharKey[_massItem][_numberKeyNow];
     // запоминаем нажатую кнопку
-    _numberKeyWas = _numberKeyNow;
+    if (result) {
+    	_numberKeyWas = _numberKeyNow;
+    }
     return result;
 }
 
@@ -92,11 +94,13 @@ bool AmperkaKB::onRelease() {
     //определяем номер кнопки нажатой в данный момент времени
     _findPressKeyNow();
     // определяем и выводим ответ
-    result = _numberKeyNow == 255 && _numberKeyNow != _numberKeyWas && _numberKeyWas != 255 ? true : false;
+    result = _numberKeyNow == 255 && _numberKeyNow != _numberKeyWas && _numberKeyWas != 255;
     getNum = _massNumberKey[_massItem][_numberKeyWas];
     getChar = _massCharKey[_massItem][_numberKeyWas];
     // запоминаем нажатую кнопку
-    _numberKeyWas = _numberKeyNow;
+    if (result) {
+    	_numberKeyWas = _numberKeyNow;
+    }
     return result;
 }
 
@@ -106,11 +110,13 @@ bool AmperkaKB::isPressed() {
     //определяем номер кнопки нажатой в данный момент времени
     _findPressKeyNow();
     // определяем и выводим ответ
-    result = _numberKeyNow != 255 && _numberKeyNow == _numberKeyWas ? true : false;
+    result = _numberKeyNow != 255 && _numberKeyNow == _numberKeyWas;
     getNum = _massNumberKey[_massItem][_numberKeyNow];
     getChar =_massCharKey[_massItem][_numberKeyNow];
     // запоминаем нажатую кнопку
-    _numberKeyWas = _numberKeyNow;
+    if (result) {
+    	_numberKeyWas = _numberKeyNow;
+    }
     return result;
 }
 
