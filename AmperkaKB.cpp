@@ -12,7 +12,8 @@ AmperkaKB::AmperkaKB(uint8_t pin1KB, uint8_t pin2KB, uint8_t pin3KB, uint8_t pin
 }
 
 // инициализация клавиатуры
-void AmperkaKB::begin(uint8_t typeKB) {
+void AmperkaKB::begin(uint8_t typeKB, uint32_t timeHold) {
+    _timeHold = timeHold;
     _typeKB = typeKB;
     // определяем номер подмассива для вывода информации
     switch (_typeKB) {
@@ -72,46 +73,52 @@ void AmperkaKB::begin(uint8_t typeKB) {
     }
 }
 
+// считывание состояние кнопки
+void AmperkaKB::read() {
+    _state = false;
+    //определяем номер кнопки нажатой в данный момент времени
+    _findPressKeyNow();
+    if (_numberKeyNow != 255 && _numberKeyNow != _numberKeyWas) {
+        // определяем номер кнопки нажатой в данный момент времени
+        getNum =  _massNumberKey[_massItem][_numberKeyNow];
+        getChar = _massCharKey[_massItem][_numberKeyNow];
+        _numberKeyNowLong = _numberKeyNow;
+        _msNumberKeyState = millis();
+        _state = ON_PRESS;
+    }
+
+    if (_numberKeyNow == 255 && _numberKeyNow != _numberKeyWas && _numberKeyWas != 255 && _numberKeyNowLong != 255) {
+        // определяем номер зажатой кнопки в данный момент времени
+        getNum = _massNumberKey[_massItem][_numberKeyWas];
+        getChar =_massCharKey[_massItem][_numberKeyWas];
+        _state = ON_RELEASE;
+    }
+
+    if (_numberKeyNow != 255 && _numberKeyNowLong != 255 && millis() - _msNumberKeyState > _timeHold) {
+        // определяем номер кнопки отжатой в данный момент времени
+        getNum = _massNumberKey[_massItem][_numberKeyNow];
+        getChar = _massCharKey[_massItem][_numberKeyNow];
+        _numberKeyNowLong = 255;
+        _msNumberKeyState = millis();
+        _state = ON_PRESS_LONG;
+    }
+    // запоминаем нажатую кнопку
+    _numberKeyWas = _numberKeyNow;
+}
+
 // определение нажимаемой кнопки
-bool AmperkaKB::onPress() {
-    bool result = false;
-    //определяем номер кнопки нажатой в данный момент времени
-    _findPressKeyNow();
-    // определяем и выводим ответ
-    result = _numberKeyNow != 255 && _numberKeyNow != _numberKeyWas ? true : false;
-    getNum =  _massNumberKey[_massItem][_numberKeyNow];
-    getChar = _massCharKey[_massItem][_numberKeyNow];
-    // запоминаем нажатую кнопку
-    _numberKeyWas = _numberKeyNow;
-    return result;
+bool AmperkaKB::justPressed() const {
+    return _state == ON_PRESS ? 1 : 0;
 }
 
 // определение отжимаемой кнопки
-bool AmperkaKB::onRelease() {
-    bool result = false;
-    //определяем номер кнопки нажатой в данный момент времени
-    _findPressKeyNow();
-    // определяем и выводим ответ
-    result = _numberKeyNow == 255 && _numberKeyNow != _numberKeyWas && _numberKeyWas != 255 ? true : false;
-    getNum = _massNumberKey[_massItem][_numberKeyWas];
-    getChar = _massCharKey[_massItem][_numberKeyWas];
-    // запоминаем нажатую кнопку
-    _numberKeyWas = _numberKeyNow;
-    return result;
+bool AmperkaKB::justReleased() const {
+    return _state == ON_RELEASE ? 1 : 0;
 }
 
 // определение отжимаемой кнопки
-bool AmperkaKB::isPressed() {
-    bool result = false;
-    //определяем номер кнопки нажатой в данный момент времени
-    _findPressKeyNow();
-    // определяем и выводим ответ
-    result = _numberKeyNow != 255 && _numberKeyNow == _numberKeyWas ? true : false;
-    getNum = _massNumberKey[_massItem][_numberKeyNow];
-    getChar =_massCharKey[_massItem][_numberKeyNow];
-    // запоминаем нажатую кнопку
-    _numberKeyWas = _numberKeyNow;
-    return result;
+bool AmperkaKB::isHold() const {
+    return _state == ON_PRESS_LONG  ? 1 : 0;
 }
 
 // определяем номер кнопки нажатой в данный момент времени

@@ -1,18 +1,15 @@
 #ifndef _AMPERKA_KB_H_
 #define _AMPERKA_KB_H_
 
-#if defined(ARDUINO) && (ARDUINO >= 100)
 #include <Arduino.h>
-#else
-#include <WProgram.h>
-#endif
 
-// кнопка удерживается нажатой			
-#define	KEY_IS_PRESSED  0
 // нажатие кнопки 
-#define	KEY_PRESS       1
+#define ON_PRESS        1
+// кнопка удерживается нажатой	
+#define ON_PRESS_LONG   2
 // отпускаие кнопки
-#define	KEY_RELEASE     2
+#define ON_RELEASE      3
+
 // типы клавиатур
 #define	KB1x4       0
 #define KB4x3       1
@@ -22,29 +19,37 @@ class AmperkaKB
 {
 public:
     AmperkaKB(uint8_t = 255, uint8_t = 255, uint8_t = 255, uint8_t = 255, uint8_t = 255, uint8_t = 255, uint8_t = 255, uint8_t = 255);
-    // инициализация клавиатуры (тип клавиатуры)
-    void begin(uint8_t typeKB);
+    // инициализация клавиатуры
+    void begin(uint8_t typeKB, uint32_t timeHold = 2000);
+    // считывание данных с кнопки
+    void read();
     // определение нажатой кнопки
-    bool onPress();
+    bool justPressed() const;
     // определение отжатой кнопки
-    bool onRelease();
-    // определение зажатой кнопки
-    bool isPressed();
+    bool justReleased() const;
+    // определение зажатие кнопки
+    bool isHold() const;
     // цифровое обозначение кнопки
     uint8_t	getNum = 0;
     // буквенное обозначение номера кнопки
     char getChar = 0;
 private:
-    // определение номера кнопки нажатой в данный момент времени
-    void _findPressKeyNow();
     // тип подключённой клавиатуры
     uint8_t _typeKB;
     // номера выводов к которым подключена клавиатура
     uint8_t	_pinsKB[8];
+    // время длительного зажатия кнопки
+    uint32_t _timeHold;
+    // состояние системы
+    uint8_t _state;
     // номер сейчас нажатой кнопки
     uint8_t	_numberKeyNow;
     // номер ранее нажатой кнопки
     uint8_t	_numberKeyWas = 255;
+    // время нажатия кнопки
+    uint32_t _msNumberKeyState;
+    // длинное нажатие
+    uint8_t _numberKeyNowLong;
     // номер подмассива для вывода информации
     uint8_t	_massItem;
     // массив цифровых обозначений номера кнопки для переменной getNum
@@ -59,6 +64,8 @@ private:
         {'1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#', '0', '0', '0', '0'},
         {'1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'}
     };
+    // определение номера кнопки нажатой в данный момент времени
+    void _findPressKeyNow();
 };
 
 #endif
